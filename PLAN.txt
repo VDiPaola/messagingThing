@@ -1,0 +1,13 @@
+
+
+MAIN PAGE: {
+
+    - Search for existing users - DONE
+    - See all saved dms ( save people you have dmed in cookies) / On page load we get all the open chats they have { max 10 chats? } and we load them into the sidebar
+
+}
+
+DATA BASE: {
+
+    -Add Columns - DONE
+}

@@ -1,0 +1,79 @@
+/* Main Page Css */
+
+.SearchbarDiv input{
+    position:absolute;
+
+    margin-top:1%;
+    MARGIN-LEFT:41%;
+    width:20%;
+    height:3%;
+    border-radius:10px;
+    border:3px solid rgb(0, 195, 255);
+    text-align:center;
+}
+
+#SearchResultsDiv{
+    z-index:10;
+    background-color: white;
+    width:30%;
+    border:3px solid rgb(0, 195, 255);
+    position:absolute;
+    margin-top:6%;
+    MARGIN-LEFT:36%;
+    display: none;
+    
+}
+
+#searchresult{
+    margin-top:1%;
+    margin-bottom:1%;
+    margin-left:1%;
+}
+#searchresultbuttons{
+    margin-left:10%;
+}
+
+#searchresult p:hover{
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+
+#profilediv{
+    display:none;
+    position:absolute;
+    margin-top: 6%;
+    margin-left: 36%;
+    width:31%;
+    height:45%;
+    border:3px solid rgb(0, 195, 255);
+    background-color:white;
+    z-index:11;
+}
+
+#profiledivuser{
+    margin-left:5%;
+    margin-top:-5%;
+    font-size:150%;
+}
+
+#profiledivbio{
+    margin-left:5%;
+    margin-top:-5%;
+    font-size:100%;
+}
+
+#closeProfile{
+    margin-left:93%;
+}
+
+#closeProfile:hover{
+    cursor:pointer;
+    color: grey;
+}
+
+
+/* 
+V V GOOD COMMENT BOX /(^-^)\ -- pete the penguin
+hi pete
+*/
