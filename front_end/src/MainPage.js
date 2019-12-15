@@ -88,10 +88,14 @@ export class MainPage extends React.Component{
               dropdowndiv.innerHTML = ''
               dropdowndiv.style.display = 'inline-block';
               for(let i=0;i<data.length && i < 5;i++){
-                dropdowndiv.innerHTML += '<div className="searchresultstext"> <p id="searchresult" class="nameEvent">'+data[i].username+' </p><p> Bio: '+data[i].bio+'</p><div id="searchresultsbutton"><button>Message</button><button class="friendEvent">Add Friend</button></div> </div>'
+                dropdowndiv.innerHTML += '<div className="searchresultstext"> <p id="searchresult" class="nameEvent">'+data[i].username+' </p><p> Bio: '+data[i].bio+'</p><div id="searchresultsbutton"><button class="messageButtonx">Message</button><button class="friendEvent">Add Friend</button></div> </div>'
               }
 
-
+              for(let i =0; i<document.getElementsByClassName("messageButtonx").length;i++){
+                document.getElementsByClassName("messageButtonx")[i].addEventListener("click",(e)=>{
+                    this.state.currentMessage = e.target.parentNode.parentNode.childNodes[1].innerHTML;
+                })
+              }
               for(let i =0; i<document.getElementsByClassName("friendEvent").length;i++){
                 document.getElementsByClassName("friendEvent")[i].addEventListener("click", function(e){
                   //CLICKED ADD FRIEND
@@ -154,9 +158,10 @@ export class MainPage extends React.Component{
       .then(response => response.json())
       .then((data)=> {
         console.log(data.data)
+        //clear messages
+        document.getElementById('ShowMessages').innerHTML = ''
         if(data.data != 'false'){
           //display messages
-          document.getElementById('ShowMessages').innerHTML = ''
           for(let i=0;i<data.data.message.length;i++){
 
             let name = data.data.message[i].split("℗")[0] 
@@ -172,13 +177,13 @@ export class MainPage extends React.Component{
       })
     }
     sendMessage(){
-      let sendto = `${this.state.currentMessage}`
+      let sendto = this.state.currentMessage
       let message = document.getElementById('MessageInput').value;
 
       //let object = `,"${sendto}": {"message": "${message}"}`
       //console.log(object)
       console.log(this.state.profile.username) 
-      fetch(`http://localhost:4000/users/sendmessage?sendto=${sendto}&username=${this.state.profile.username}&message=${message}`)
+      fetch(`http://localhost:4000/users/sendmessage?sendto=${sendto.trim()}&username=${this.state.profile.username.trim()}&message=${message}`)
       .then(response => response.json())
       .then((data) => {
         console.log(data)

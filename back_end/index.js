@@ -49,7 +49,7 @@ app.get('/users/verifylogin', (req,res) => {
                     
                     return res.send("true"); 
                 }
-                return res.send('rightuser');
+                return res.json({data : "rightuser"});
                 
             }
             return res.send('false'); 
@@ -187,7 +187,8 @@ app.get('/users/addfriend', (req,res) => {
 app.get('/users/sendmessage',(req,res) => {
     const { sendto, username, message } = req.query;
     let object = `,"${sendto}": {"message": ["${username}℗${message}"]}`
-    let SEND_MESSAGE = `UPDATE userpass SET messages = CONCAT(messages, '${object}') WHERE username = '${sendto}'`
+    let object2 = `,"${username}": {"message": ["${username}℗${message}"]}`
+    let SEND_MESSAGE = `UPDATE userpass SET messages = CONCAT(messages, '${object2}') WHERE username = '${sendto}'`
     let SAVE_MESSAGE = `UPDATE userpass SET messages = CONCAT(messages, '${object}') WHERE username = '${username}'`
     const selectall = `SELECT messages FROM userpass WHERE username = '${username}'`
 
@@ -210,22 +211,58 @@ app.get('/users/sendmessage',(req,res) => {
 
             //if their name is already in the object append the message
             //format name℗message
+            //the message
             let newObject = `${username}℗${message}`
+            //message change for current user
             MessagesObject[sendto].message[MessagesObject[sendto].message.length] = newObject;
 
-            SEND_MESSAGE = `UPDATE userpass SET messages= '${JSON.stringify(MessagesObject)}' WHERE username = '${sendto}'`
-            SAVE_MESSAGE = `UPDATE userpass SET messages= '${JSON.stringify(MessagesObject)}' WHERE username = '${username}'`
+            
+            let finalSave = JSON.stringify(MessagesObject);
+            finalSave = finalSave.substr(1);
+            finalSave = finalSave.substr(0,finalSave.length-1)
+            
+            SAVE_MESSAGE = `UPDATE userpass SET messages= '${finalSave}' WHERE username = '${username}'`
+
+            const GET_FRIEND = `SELECT messages FROM userpass WHERE username = '${sendto}'`;
+
+            connection.query(GET_FRIEND, (err,result)=>{
+                if(err){return console.log(err)}
+                let StringObject2 = result[0].messages;
+                let MessagesObject2 = false;
+                try{
+                    console.log("1")
+                    MessagesObject2 = JSON.parse( "{" + StringObject2 + "}"); //i see
+                    
+                }catch(err){
+                    console.log("2")
+                    MessagesObject2 = JSON.parse(StringObject2);
+                }
+                MessagesObject2[username].message[MessagesObject2[username].message.length] = newObject;
+                let finalSend = JSON.stringify(MessagesObject2);
+                finalSend = finalSend.substr(1);
+                finalSend = finalSend.substr(0,finalSend.length-1)
+                SEND_MESSAGE = `UPDATE userpass SET messages= '${finalSend}' WHERE username = '${sendto}'`
+                connection.query(SEND_MESSAGE, (err,result) => {
+                    if(err){return console.log(err)}
+                    connection.query(SAVE_MESSAGE, (err, results)=> {
+                        if(err){return console.log(err)}
+                        return res.json({ data : 'Success' }) 
+                    })
+                })
+            })
+
+            
         }else{
             //runs once for each user
-
-        }
-        connection.query(SEND_MESSAGE, (err,result) => {
-            if(err){return console.log(err)}
-            connection.query(SAVE_MESSAGE, (err, results)=> {
+            connection.query(SEND_MESSAGE, (err,result) => {
                 if(err){return console.log(err)}
-                return res.json({ data : 'Success' }) 
+                connection.query(SAVE_MESSAGE, (err, results)=> {
+                    if(err){return console.log(err)}
+                    return res.json({ data : 'Success' }) 
+                })
             })
-        })
+        }
+
         
 
 
@@ -242,7 +279,7 @@ app.get('/users/getmessages',(req,res) => {
     const GET_MESSAGES = `SELECT messages FROM userpass WHERE username = '${username}'`
     connection.query(GET_MESSAGES,(err,result) => {
         if(err){return console.log(err)}
-        console.log(to) //e
+        console.log(username + "  " + to) //e
         if(result[0] != undefined){
 
             let StringObject = result[0].messages;
@@ -255,6 +292,7 @@ app.get('/users/getmessages',(req,res) => {
                 console.log("2")
                 MessagesObject = JSON.parse(StringObject);
             }
+            console.log(result[0].messages)
             if(MessagesObject[to]){
                 res.json({data : MessagesObject[to]})
             }else{

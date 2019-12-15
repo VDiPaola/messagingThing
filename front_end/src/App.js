@@ -2,6 +2,7 @@ import React from 'react';
 import './CSS/App.css'
 const hostname = window.location.hostname;
 
+
 export class LoginPage extends React.Component {
 
   constructor(props){
@@ -19,7 +20,7 @@ export class LoginPage extends React.Component {
     }catch(err){
       console.log("error from getting cookie: " + err)
     }
-
+    
     
   }
 
@@ -27,10 +28,6 @@ export class LoginPage extends React.Component {
     users: []
   }
 
-  //once rendered app it gets users and prints to screen
-  componentDidMount(err,info){
-    this.getUsers();
-  }
 
   //Login
   Login = () => {
@@ -46,18 +43,27 @@ export class LoginPage extends React.Component {
           console.log("saving to cookie");
           document.cookie = `username=${username_};`; 
           document.location.href = `http://${hostname}:3000/main`;
+        }else{
+            //displays error
+            let error = document.getElementsByClassName("wrongPassword")[0]
+            error.innerHTML = "error with user or pass (case sensitive)";
+            error.style.display = "block";
         }
       })
 
   }
 
   //function to get users
-  getUsers = () =>{
+  getUsers = (user) =>{
     fetch('http://localhost:4000/users')
     .then(response =>response.json())
     .then((data) =>{
       //console.log(data);
       this.setState({users: data.data});
+      console.log(user +' was added')
+      //redirects to main page
+      document.cookie = `username=${user};`; 
+      document.location.href = `http://${hostname}:3000/main`;
     })
     .catch(err =>{
       console.log(err);
@@ -79,17 +85,17 @@ addUser = () =>{
       if(data == false){
         fetch(`http://localhost:4000/users/add?user=${user}&pass=${password}`)
         .then(response => response.json())
-        .then(this.getUsers)
+        .then(this.getUsers(user))
         .catch(err =>{
           console.log(err);
         });
-        console.log(user +' was added')
-        //redirects to main page
-        document.cookie = `username=${user};`; 
-        document.location.href = `http://${hostname}:3000/main`;
       }
       else{
         console.log('already an account')
+        //displays error
+        let error = document.getElementsByClassName("wrongPassword")[0]
+        error.innerHTML = "That user already exists";
+        error.style.display = "block";
       }
     })
   }else{
@@ -101,17 +107,19 @@ addUser = () =>{
 
   render(){
     const {users} = this.state;
-    console.log(users)
+    //console.log(users)
     return (
       <div className="App">
+        <p className="wrongPassword"></p>
         <div className="LoginDiv">
           <h3>Login</h3>
           <div className='LoginInputsDiv'>
             <input id="username" type="text" placeholder="username" ></input>
             <input id="password" type="text" placeholder="password" ></input>
-            <button onClick={this.Login}>Login</button>
+            <button onTouchStart={this.Login} onClick={this.Login}>Login</button>
             <button onClick={this.addUser}>Sign up</button>
           </div>
+          <h1>Jorzo</h1>
         </div>
       </div>
     );
