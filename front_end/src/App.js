@@ -1,5 +1,6 @@
 import React from 'react';
 import './CSS/App.css'
+const hostname = window.location.hostname;
 
 export class LoginPage extends React.Component {
 
@@ -13,7 +14,7 @@ export class LoginPage extends React.Component {
       console.log("NAME FROM COOKIE: " + nameFromCookie);
       if(nameFromCookie){
         //redirect to main page
-        document.location.href = "http://localhost:3000/main";
+        document.location.href = `http://${hostname}:3000/main`;
       }
     }catch(err){
       console.log("error from getting cookie: " + err)
@@ -44,7 +45,7 @@ export class LoginPage extends React.Component {
           //if login successful add username to cookie
           console.log("saving to cookie");
           document.cookie = `username=${username_};`; 
-          document.location.href = "http://localhost:3000/main";
+          document.location.href = `http://${hostname}:3000/main`;
         }
       })
 
@@ -85,7 +86,7 @@ addUser = () =>{
         console.log(user +' was added')
         //redirects to main page
         document.cookie = `username=${user};`; 
-        document.location.href = "http://localhost:3000/main";
+        document.location.href = `http://${hostname}:3000/main`;
       }
       else{
         console.log('already an account')

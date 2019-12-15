@@ -1,5 +1,6 @@
 import React from 'react';
 import './CSS/profile.css';
+const hostname = window.location.hostname;
 
 export class Profile extends React.Component{
     constructor(props){
@@ -32,13 +33,13 @@ export class Profile extends React.Component{
             let text = document.getElementById('Sidebarbio');
           }else{
             console.log('failed')
-            document.location.href = "http://localhost:3000/";
+            document.location.href = `http://${hostname}:3000/`;
           }
         })
       }else{
         //no recoreded user so redirect to login page
         console.log("main no cookie")
-        document.location.href = "http://localhost:3000/";
+        document.location.href = `http://${hostname}:3000/`;
       }
     }
 
@@ -85,7 +86,7 @@ export class Profile extends React.Component{
           //clear cookie
           document.cookie = "username= ; expires = Thu, 01 Jan 1970 00:00:00 GMT"
           //redirect to login
-          document.location.href = "http://localhost:3000/";
+          document.location.href = `http://${hostname}:3000/`;
         })
         .catch(err =>{console.log(err)})
 
@@ -97,7 +98,7 @@ export class Profile extends React.Component{
     render(){
         return(
             <div className="profileContainer">
-                <div className="profileBackButton"><p onClick={function(){document.location.href = "http://localhost:3000/main";}}>Jorzo</p></div>
+                <div className="profileBackButton"><p onClick={function(){document.location.href = `http://${hostname}:3000/main`;}}>Jorzo</p></div>
                 <h2 id='ProfileUsername'>{this.state.profile.username}</h2>
                 <h3>Bio: </h3>
                 <h4 id='ProfileBio'>{this.state.profile.bio}</h4>
@@ -112,7 +113,10 @@ export class Profile extends React.Component{
                 <button onClick={this.changeBio.bind(this)}>Change Bio</button>
                 </div>
                 <div className="profileFriendsDiv">
-                  WHERE FRIENDS WILL BE ADDED
+                  <h2>Friends</h2>
+                  <div id='displayfriendsdiv'>
+                    {this.state.profile.friends}
+                  </div>
                 </div>
                 <div className="profileDeleteAccount" onClick={this.deleteAccount.bind(this)}><p>Delete Account</p></div>
 

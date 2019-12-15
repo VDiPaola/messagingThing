@@ -83,7 +83,7 @@ app.get('/users/add', (req,res)=>{
     //sets parameters for query
     const {user, pass} = req.query;
     //creates variable for query
-    const INSERT_USER = `INSERT INTO userpass(username, password,bio,friends,messages) VALUES('${user}', '${pass}', '', '','')`;
+    const INSERT_USER = `INSERT INTO userpass(username, password,bio,friends,messages) VALUES('${user}', '${pass}', '', '','"example":{"message":[""]}')`;
 
     connection.query(INSERT_USER, (err, results)=>{
         if(!err){
@@ -186,35 +186,84 @@ app.get('/users/addfriend', (req,res) => {
 //send message
 app.get('/users/sendmessage',(req,res) => {
     const { sendto, username, message } = req.query;
-    const SEND_MESSAGE = `UPDATE userpass SET messages = CONCAT(messages, '${message}') WHERE username = '${sendto}'`
-    const SAVE_MESSAGE = `UPDATE userpass SET messages = CONCAT(messages, '${message}') WHERE username = '${username}'`
+    let object = `,"${sendto}": {"message": ["${username}℗${message}"]}`
+    let SEND_MESSAGE = `UPDATE userpass SET messages = CONCAT(messages, '${object}') WHERE username = '${sendto}'`
+    let SAVE_MESSAGE = `UPDATE userpass SET messages = CONCAT(messages, '${object}') WHERE username = '${username}'`
     const selectall = `SELECT messages FROM userpass WHERE username = '${username}'`
 
-    // connection.query(selectall,(err,result)=>{
-    //     res.json({ data : })
-    // })
+    connection.query(selectall,(err,result)=>{
+        console.log(result) //
+        console.log(username) 
+        let StringObject = result[0].messages;
+        let MessagesObject = false;
+        try{
+            console.log("1")
+            MessagesObject = JSON.parse( "{" + StringObject + "}"); //i see
+            
+        }catch(err){
+            console.log("2")
+            MessagesObject = JSON.parse(StringObject);
+        }
+        
+        //console.log(Object.keys(MessagesObject))
+        if(Object.keys(MessagesObject).indexOf(sendto) > -1){
 
-    connection.query(SEND_MESSAGE,(err,result) => {
-        if(err){return console.log(err)}
-        connection.query(SAVE_MESSAGE,(err, results)=> {
+            //if their name is already in the object append the message
+            //format name℗message
+            let newObject = `${username}℗${message}`
+            MessagesObject[sendto].message[MessagesObject[sendto].message.length] = newObject;
+
+            SEND_MESSAGE = `UPDATE userpass SET messages= '${JSON.stringify(MessagesObject)}' WHERE username = '${sendto}'`
+            SAVE_MESSAGE = `UPDATE userpass SET messages= '${JSON.stringify(MessagesObject)}' WHERE username = '${username}'`
+        }else{
+            //runs once for each user
+
+        }
+        connection.query(SEND_MESSAGE, (err,result) => {
             if(err){return console.log(err)}
-            res.json({ data : 'success' })
+            connection.query(SAVE_MESSAGE, (err, results)=> {
+                if(err){return console.log(err)}
+                return res.json({ data : 'Success' }) 
+            })
         })
+        
+
+
     })
+
+
 })
 
 
 
 //get messages
 app.get('/users/getmessages',(req,res) => {
-    const { username } = req.query;
-    const GET_MESSAGES = `SELECT messages FROM userpass WHERE username = ' ${username}'`
-
+    const { username,  to } = req.query;
+    const GET_MESSAGES = `SELECT messages FROM userpass WHERE username = '${username}'`
     connection.query(GET_MESSAGES,(err,result) => {
         if(err){return console.log(err)}
-        res.json({data : result})
+        console.log(to) //e
+        if(result[0] != undefined){
+
+            let StringObject = result[0].messages;
+            let MessagesObject = false;
+            try{
+                console.log("1")
+                MessagesObject = JSON.parse( "{" + StringObject + "}");
+                
+            }catch(err){
+                console.log("2")
+                MessagesObject = JSON.parse(StringObject);
+            }
+            if(MessagesObject[to]){
+                res.json({data : MessagesObject[to]})
+            }else{
+                res.json({data : "false"})
+        
+            }
+         }
     })
-})
+})// 
 
 //delete account
 app.get('/users/deleteAccount',(req,res) => {

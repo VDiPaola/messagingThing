@@ -1,6 +1,7 @@
 import React from 'react';
 import './CSS/MainPage.css';
 import $ from 'jquery';
+const hostname = window.location.hostname;
 
 export class MainPage extends React.Component{
 
@@ -8,8 +9,13 @@ export class MainPage extends React.Component{
         super(props);
 
         this.state = {
-          profile: ""
+          profile: "",
+          currentMessage:"enzo"
         }
+
+        setInterval(()=>{
+          this.getMessages(this.state.currentMessage);
+        }, 5000)
 
         this.InitialiseUser.bind(this);
         this.InitialiseUser();
@@ -18,11 +24,12 @@ export class MainPage extends React.Component{
         document.body.addEventListener("keydown",(e)=>{
           if(e.keyCode == 13){
             //enter key pressed
-            this.getMessages();
             this.sendMessage();
+            document.getElementById('MessageInput').value = "";
           }
         })
     }
+
     InitialiseUser(){
 
         //gets current user(from cookie) and loads profile info into table
@@ -49,13 +56,13 @@ export class MainPage extends React.Component{
             }else{
               console.log('failed')
               document.cookie = "username= ; expires = Thu, 01 Jan 1970 00:00:00 GMT"
-              document.location.href = "http://localhost:3000/";
+              document.location.href = `http://${hostname}:3000/`;
             }
           })
         }else{
           //no recoreded user so redirect to login page
           console.log("main no cookie")
-          document.location.href = "http://localhost:3000/";
+          document.location.href = `http://${hostname}:3000/`;
         }
 
     }
@@ -139,27 +146,42 @@ export class MainPage extends React.Component{
     signOut(){
       //deletes cookie and goes back to login page
       document.cookie = "username= ; expires = Thu, 01 Jan 1970 00:00:00 GMT"
-      window.location.href = "http://localhost:3000/";
+      document.location.href = `http://${hostname}:3000/`;
     }
 
-    getMessages(){
-      fetch(`http://localhost:4000/users/getmessages?username=${this.state.profile.username}`)
+    getMessages(to){
+      fetch(`http://localhost:4000/users/getmessages?username=${this.state.profile.username}&to=${to}`)
       .then(response => response.json())
       .then((data)=> {
-        console.log(data)
+        console.log(data.data)
+        if(data.data != 'false'){
+          //display messages
+          document.getElementById('ShowMessages').innerHTML = ''
+          for(let i=0;i<data.data.message.length;i++){
+
+            let name = data.data.message[i].split("℗")[0] 
+            let text = data.data.message[i].split("℗")[1]
+            let messageTemplate = "<div id='messageContainer'><p class='messageName'>NAME</p><p class='messageText'>TEXT</p></div>";
+            messageTemplate = messageTemplate.replace('NAME', name)
+            //should just be data.data
+            messageTemplate = messageTemplate.replace('TEXT', text)
+            document.getElementById('ShowMessages').innerHTML += messageTemplate
+            }
+        }
+
       })
     }
-
     sendMessage(){
-      let sendto = 'enzo'
+      let sendto = `${this.state.currentMessage}`
       let message = document.getElementById('MessageInput').value;
-      let object = sendto+`:{message:"${message}"}`
-      console.log(object)
 
-      fetch(`http://localhost:4000/users/sendmessage?sendto=${sendto}&username=${this.state.profile.username}&message=${object}`)
+      //let object = `,"${sendto}": {"message": "${message}"}`
+      //console.log(object)
+      console.log(this.state.profile.username) 
+      fetch(`http://localhost:4000/users/sendmessage?sendto=${sendto}&username=${this.state.profile.username}&message=${message}`)
       .then(response => response.json())
       .then((data) => {
-        console.log(data.data.messages)
+        console.log(data)
       })
 
     }//
@@ -179,8 +201,9 @@ export class MainPage extends React.Component{
                 <div className="SidebarDiv">
                 <button id='SettingsDropDown'>···</button>
                 <div className="SidebarProfileDiv">
+                    <h2 id="sidebarTitle">Jorzo</h2>
                     <h3>Profile:</h3>
-                    <h4 id='Sidebarusername' onClick={function(){window.location.href = "http://localhost:3000/profile"}}>{this.state.profile.username}</h4>
+                    <h4 id='Sidebarusername' onClick={function(){window.location.href = `http://${hostname}:3000/profile`}}>{this.state.profile.username}</h4>
                     <p id='Sidebarbio'>{this.state.profile.bio}</p>
                   </div>
                   <div className="OpenChatsDiv">
