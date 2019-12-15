@@ -8,9 +8,7 @@ export class LoginPage extends React.Component {
     //check if username is already in cookies then redirect if it is
     try{
       let nameFromCookie = decodeURIComponent(document.cookie);
-      console.log("NAME FROM COOKIE: " + document.cookie);
       nameFromCookie = nameFromCookie.split("=");
-      console.log("NAME FROM COOKIE: " + nameFromCookie);
       nameFromCookie = nameFromCookie[1];
       console.log("NAME FROM COOKIE: " + nameFromCookie);
       if(nameFromCookie){
@@ -70,25 +68,32 @@ export class LoginPage extends React.Component {
 //function to add users -- Working
 addUser = () =>{
   //doesnt make a difference this
-  let user = document.getElementById("username").value;
-  let password = document.getElementById('password').value;
-  fetch(`http://localhost:4000/users/verifylogin?user=${user}&pass=${password}`)
-  .then(res => res.json())
-  .then((data) => { 
-    console.log(data); 
-    if(data == "false"){
-      fetch(`http://localhost:4000/users/add?user=${user}&pass=${password}`)
-      .then(response => response.json())
-      .then(this.getUsers)
-      .catch(err =>{
-        console.log(err);
-      });
-      console.log(user +' was added')
-    }
-    else{
-      console.log('already an account')
-    }
-  })
+  let user = document.getElementById("username").value.trim();
+  if(user[user.length-1] != ";" && user[0] != ";"){
+    let password = document.getElementById('password').value;
+    fetch(`http://localhost:4000/users/verifylogin?user=${user}&pass=${password}`)
+    .then(res => res.json())
+    .then((data) => { 
+      console.log(data); 
+      if(data == false){
+        fetch(`http://localhost:4000/users/add?user=${user}&pass=${password}`)
+        .then(response => response.json())
+        .then(this.getUsers)
+        .catch(err =>{
+          console.log(err);
+        });
+        console.log(user +' was added')
+        //redirects to main page
+        document.cookie = `username=${user};`; 
+        document.location.href = "http://localhost:3000/main";
+      }
+      else{
+        console.log('already an account')
+      }
+    })
+  }else{
+    alert("NO SEMI COLONS AT START OR END");
+  }
 }
 
 //goes through state which stores database and appends the divs to the app render

@@ -11,3 +11,17 @@ DATA BASE: {
 
     -Add Columns - DONE
 }
+
+PROFILE: {
+
+    -button to delete account
+    -friends
+    -change name, bio, whatever
+    -button to go back to main
+
+}
+
+
+
+-when name change check the name is available - done
+-friend cant be already in friends list - done
