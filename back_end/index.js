@@ -24,20 +24,6 @@ app.get('/', (req,res)=>{
     res.send("goto /users to see database")
 })
 
-app.get('/users', (req,res)=>{
-    connection.query(selectAllUsers, (err,results)=>{
-        if(!err){
-            //SENDS DATABASE
-            return res.json({
-                data: results
-            });
-        }else{
-            res.send(err);
-        }
-        connection.end();
-    })
-})//why does it keep going offline
-
 
 //verify login ----- half Working  -------
 app.get('/users/verifylogin', (req,res) => {
@@ -58,6 +44,20 @@ app.get('/users/verifylogin', (req,res) => {
 
     })
 })
+
+app.get('/users', (req,res)=>{
+    connection.query(selectAllUsers, (err,results)=>{
+        if(!err){
+            //SENDS DATABASE
+            return res.json({
+                data: results
+            });
+        }else{
+            res.send(err);
+        }
+        connection.end();
+    })
+})//why does it keep going offline
 
 
 
